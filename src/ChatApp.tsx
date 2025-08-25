@@ -238,186 +238,282 @@ export default function ChatApp() {
      doc.save("chat.pdf");
    };
 
+  // Document upload for user
+  // New state for document uploads
+  const [docFile, setDocFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [status, setStatus] = useState("");
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+
+  // Document upload for user
+  const uploadDocument = async () => {
+    if (!docFile) {
+      setStatus("⚠️ Please select a document first!");
+      return;
+    }
+    setUploading(true);
+
+    const formData = new FormData();
+    formData.append("file", docFile);
+
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/ai/uploadDocument`, {
+        method: "POST",
+        body: formData,
+      });
+      const msg = await res.text();
+      setStatus("📂 " + msg);
+
+      // Add file to uploaded list
+      setUploadedFiles((prev) => [...prev, docFile.name]);
+    } catch (err) {
+      console.error(err);
+      setStatus("❌ Error uploading document.");
+    } finally {
+      setDocFile(null);
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""; // reset file input
+      }
+    }
+  };
+
   return (
-    <div className="flex flex-col h-screen max-w-2xl mx-auto p-4">
-      {/* Header with app name and welcome message */}
-      <div className="text-center mb-4">
-        <h1 className="text-2xl font-bold text-blue-700">AI Multi-Modal Chat Assistant</h1>
-        <p className="text-gray-600 mt-1">
-          Welcome! I’m here to assist you with intelligent Q&A, AI-powered image generation, image content analysis, text-to-speech conversion, and audio transcription.
-        </p>
-      </div>
-
-      {/* Chat messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 border rounded-lg">
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-          >
-            {msg.role === "user" && (
-              <div className="bg-blue-500 text-white p-3 rounded-2xl max-w-[80%] self-end ml-auto">
-                {msg.content}
-              </div>
-            )}
-            {msg.role === "bot" && (
-              <div className="bg-gray-200 text-black p-3 rounded-2xl max-w-[80%] self-start mr-auto">
-                {msg.content}
-              </div>
-            )}
-            {msg.role === "image" && (
-              <img src={msg.content} alt="AI generated" className="max-w-full rounded-lg" />
-            )}
-            {msg.role === "audio" && (
-              <audio controls src={msg.content} className="max-w-full" />
-            )}
-            {msg.role === "description" && (
-              <div className="bg-yellow-200 p-3 rounded-lg max-w-[80%]">{msg.content}</div>
-            )}
-          </div>
-        ))}
-        {loading && (
-          <div className="flex items-center space-x-1 bg-gray-200 text-black p-3 rounded-2xl max-w-[80%] self-start mr-auto">
-            <span className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-            <span className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-            <span className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></span>
-          </div>
-        )}
-        <div ref={messagesEndRef}></div>
-      </div>
-
-      {/* Share Buttons */}
-      <div className="flex gap-3 mt-4">
-          <div className="flex items-center justify-between p-2 border-b">
-            <button
-              onClick={handleCopyChat}
-              className="p-2 rounded-full hover:bg-gray-200"
-              title="Copy Chat"
-            >
-              <Copy className="w-5 h-5" />
-            </button>
-            <button
-              onClick={handleShareChat}
-              className="p-2 rounded-full hover:bg-gray-200"
-              title="Share Chat"
-            >
-              <Share2 className="w-5 h-5 text-gray-600" />
-            </button>
-            <div className="relative">
-              <button
-                onClick={() => setShowDownloadOptions((prev) => !prev)}
-                className="p-2 rounded-full hover:bg-gray-200"
-                title="Download Chat"
-              >
-                <Download className="w-5 h-5" />
-              </button>
-
-              {showDownloadOptions && (
-                <div className="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg z-10">
-                  <button
-                    onClick={() => {
-                      handleDownloadTxt();
-                      setShowDownloadOptions(false);
-                    }}
-                    className="flex items-center w-full px-3 py-2 hover:bg-gray-100"
-                  >
-                    <FileText className="w-4 h-4 mr-2" /> Text
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleDownloadPdf();
-                      setShowDownloadOptions(false);
-                    }}
-                    className="flex items-center w-full px-3 py-2 hover:bg-gray-100"
-                  >
-                    <FileType className="w-4 h-4 mr-2" /> PDF
-                  </button>
+      <div className="flex h-screen">
+        {/* Left: Chat section */}
+        <div className="w-2/3 p-4 border-r overflow-y-auto">
+          <div className="flex flex-col h-screen max-w-2xl mx-auto p-4">
+                {/* Header with app name and welcome message */}
+                <div className="text-center mb-4">
+                  <h1 className="text-2xl font-bold text-blue-700">AI Multi-Modal Chat Assistant</h1>
+                  <p className="text-gray-600 mt-1">
+                    Welcome! I’m here to assist you with intelligent Q&A, AI-powered image generation, image content analysis, text-to-speech conversion, and audio transcription.
+                  </p>
                 </div>
-              )}
-            </div>
 
-          </div>
-      </div>
+                {/* Chat messages */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 border rounded-lg">
+                  {messages.map((msg, i) => (
+                    <div
+                      key={i}
+                      className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                    >
+                      {msg.role === "user" && (
+                        <div className="bg-blue-500 text-white p-3 rounded-2xl max-w-[80%] self-end ml-auto">
+                          {msg.content}
+                        </div>
+                      )}
+                      {msg.role === "bot" && (
+                        <div className="bg-gray-200 text-black p-3 rounded-2xl max-w-[80%] self-start mr-auto">
+                          {msg.content}
+                        </div>
+                      )}
+                      {msg.role === "image" && (
+                        <img src={msg.content} alt="AI generated" className="max-w-full rounded-lg" />
+                      )}
+                      {msg.role === "audio" && (
+                        <audio controls src={msg.content} className="max-w-full" />
+                      )}
+                      {msg.role === "description" && (
+                        <div className="bg-yellow-200 p-3 rounded-lg max-w-[80%]">{msg.content}</div>
+                      )}
+                    </div>
+                  ))}
+                  {loading && (
+                    <div className="flex items-center space-x-1 bg-gray-200 text-black p-3 rounded-2xl max-w-[80%] self-start mr-auto">
+                      <span className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                      <span className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                      <span className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></span>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef}></div>
+                </div>
 
-      {/* Input and file upload */}
-      <div className="flex flex-col mt-3 space-y-2">
-        <input
-          className="flex-1 border rounded-lg p-2"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-        />
-        <div className="flex space-x-2">
-          <button
-            onClick={sendMessage}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-            disabled={loading}
-          >
-            {loading ? "..." : "Q&A"}
-          </button>
-          <button
-            onClick={generateImage}
-            className="bg-green-500 text-white px-4 py-2 rounded-lg"
-            disabled={loading}
-          >
-            {loading ? "..." : "Generate Image"}
-          </button>
-          <button
-            onClick={textToAudio}
-            className="bg-purple-500 text-white px-4 py-2 rounded-lg"
-            disabled={loading}
-          >
-            {loading ? "..." : "Text to Audio"}
-          </button>
-        </div>
-        <div className="flex flex-col space-y-2 mt-3">
-          <div className="flex items-center space-x-3">
-            {/* Custom file input */}
-            <label className="flex-1 cursor-pointer">
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-                className="hidden"
-              />
-              <div className="bg-gray-100 hover:bg-gray-200 text-gray-700 border rounded-lg p-2 text-center">
-                {file ? file.name : "Choose File"}
+                {/* Share Buttons */}
+                <div className="flex gap-3 mt-4">
+                    <div className="flex items-center justify-between p-2 border-b">
+                      <button
+                        onClick={handleCopyChat}
+                        className="p-2 rounded-full hover:bg-gray-200"
+                        title="Copy Chat"
+                      >
+                        <Copy className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={handleShareChat}
+                        className="p-2 rounded-full hover:bg-gray-200"
+                        title="Share Chat"
+                      >
+                        <Share2 className="w-5 h-5 text-gray-600" />
+                      </button>
+                      <div className="relative">
+                        <button
+                          onClick={() => setShowDownloadOptions((prev) => !prev)}
+                          className="p-2 rounded-full hover:bg-gray-200"
+                          title="Download Chat"
+                        >
+                          <Download className="w-5 h-5" />
+                        </button>
+
+                        {showDownloadOptions && (
+                          <div className="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg z-10">
+                            <button
+                              onClick={() => {
+                                handleDownloadTxt();
+                                setShowDownloadOptions(false);
+                              }}
+                              className="flex items-center w-full px-3 py-2 hover:bg-gray-100"
+                            >
+                              <FileText className="w-4 h-4 mr-2" /> Text
+                            </button>
+                            <button
+                              onClick={() => {
+                                handleDownloadPdf();
+                                setShowDownloadOptions(false);
+                              }}
+                              className="flex items-center w-full px-3 py-2 hover:bg-gray-100"
+                            >
+                              <FileType className="w-4 h-4 mr-2" /> PDF
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                    </div>
+                </div>
+
+                {/* Input and file upload */}
+                <div className="flex flex-col mt-3 space-y-2">
+                  <input
+                    className="flex-1 border rounded-lg p-2"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Type your message..."
+                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                  />
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={sendMessage}
+                      className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                      disabled={loading}
+                    >
+                      {loading ? "..." : "Q&A"}
+                    </button>
+                    <button
+                      onClick={generateImage}
+                      className="bg-green-500 text-white px-4 py-2 rounded-lg"
+                      disabled={loading}
+                    >
+                      {loading ? "..." : "Generate Image"}
+                    </button>
+                    <button
+                      onClick={textToAudio}
+                      className="bg-purple-500 text-white px-4 py-2 rounded-lg"
+                      disabled={loading}
+                    >
+                      {loading ? "..." : "Text to Audio"}
+                    </button>
+                  </div>
+                  <div className="flex flex-col space-y-2 mt-3">
+                    <div className="flex items-center space-x-3">
+                      {/* Custom file input */}
+                      <label className="flex-1 cursor-pointer">
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={(e) => setFile(e.target.files?.[0] || null)}
+                          className="hidden"
+                        />
+                        <div className="bg-gray-100 hover:bg-gray-200 text-gray-700 border rounded-lg p-2 text-center">
+                          {file ? file.name : "Choose File"}
+                        </div>
+                      </label>
+
+                      {/* Image Description button */}
+                      <button
+                        onClick={getImageDescription}
+                        disabled={!file}
+                        className={`px-4 py-2 rounded-lg ${
+                          file ? "bg-yellow-500 text-black hover:bg-yellow-600" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        }`}
+                      >
+                        {loading ? "..." : "Image Description"}
+                      </button>
+
+                      {/* Audio to Text button */}
+                      <button
+                        onClick={audioToText}
+                        disabled={!file}
+                        className={`px-4 py-2 rounded-lg ${
+                          file ? "bg-pink-500 text-white hover:bg-pink-600" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        }`}
+                      >
+                        {loading ? "..." : "Audio to Text"}
+                      </button>
+                    </div>
+
+                    {/* Optional validation message */}
+                    {!file && (
+                      <p className="text-red-500 text-sm mt-1">
+                        Please upload a file to enable Image Description / Audio to Text.
+                      </p>
+                    )}
+                  </div>
+
+                </div>
               </div>
-            </label>
+        </div>
 
-            {/* Image Description button */}
-            <button
-              onClick={getImageDescription}
-              disabled={!file}
-              className={`px-4 py-2 rounded-lg ${
-                file ? "bg-yellow-500 text-black hover:bg-yellow-600" : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
-            >
-              {loading ? "..." : "Image Description"}
-            </button>
+        <div className="w-1/3 p-6 bg-gray-50 border-l overflow-y-auto">
+          <h2 className="text-xl font-bold mb-4">📂 Upload Your Own Documents</h2>
 
-            {/* Audio to Text button */}
-            <button
-              onClick={audioToText}
-              disabled={!file}
-              className={`px-4 py-2 rounded-lg ${
-                file ? "bg-pink-500 text-white hover:bg-pink-600" : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
-            >
-              {loading ? "..." : "Audio to Text"}
-            </button>
-          </div>
+          <p className="text-gray-700 text-sm mb-4 leading-relaxed">
+            <strong>Enhance your AI Assistant by uploading your own files!</strong>
+            <br /><br />
+            ✅ Supported formats: <span className="font-medium">PDF, TXT, DOCX, HTML</span>
+            <br /><br />
+            🤖 After upload, the chatbot can use your document’s knowledge to provide more relevant and personalized answers.
+            <br /><br />
+            💡 <span className="italic">Example:</span> Upload a research paper, company policy, or notes — then ask the assistant:
+            <br />
+            <span className="text-blue-600">“Summarize the key points from my file”</span><br />
+            <span className="text-blue-600">“What does Section 2 of the uploaded doc say about eligibility?”</span>
+          </p>
 
-          {/* Optional validation message */}
-          {!file && (
-            <p className="text-red-500 text-sm mt-1">
-              Please upload a file to enable Image Description / Audio to Text.
-            </p>
+          {/* File input for documents */}
+          <input
+            type="file"
+            onChange={(e) => setDocFile(e.target.files?.[0] || null)}
+            className="mb-3 block w-full text-sm text-gray-700"
+          />
+
+          <button
+            onClick={uploadDocument}
+            disabled={!docFile || uploading}
+            className={`w-full px-4 py-2 rounded-lg ${
+              docFile && !uploading
+                ? "bg-indigo-500 text-white hover:bg-indigo-600"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+          >
+            {uploading ? "Uploading..." : "Upload Document"}
+          </button>
+
+          {status && <p className="mt-2 text-sm text-gray-600">{status}</p>}
+
+          {/* List of uploaded docs */}
+          {uploadedFiles.length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold">Uploaded Files</h3>
+              <ul className="list-disc list-inside text-gray-700 mt-2 space-y-1">
+                {uploadedFiles.map((name, i) => (
+                  <li key={i}>{name}</li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
-
       </div>
-    </div>
+
   );
 }
