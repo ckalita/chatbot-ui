@@ -18,6 +18,7 @@ export default function ChatApp() {
   ]);
 
 
+  const [response, setResponse] = useState("");
   const [input, setInput] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -36,6 +37,32 @@ export default function ChatApp() {
     setMessages((prev) => [...prev, { role, content }]);
   };
 
+
+  //code for ChatGPT-style typing effect
+  const simulateTyping = (text: string) => {
+    let i = 0;
+    const typingMessage: Message = { role: "bot", content: "" };
+
+    setMessages((prev) => [...prev, typingMessage]);
+
+    const interval = setInterval(() => {
+      i++;
+      setMessages((prev) => {
+        const updated = [...prev];
+        const lastIndex = updated.length - 1;
+        updated[lastIndex] = {
+          ...updated[lastIndex],
+          content: text.slice(0, i),
+        };
+        return updated;
+      });
+
+      if (i >= text.length) {
+        clearInterval(interval);
+      }
+    }, 25); // typing speed (25ms per character)
+  };
+
   const resetFile = () => {
     setFile(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -46,7 +73,7 @@ export default function ChatApp() {
     if (!input.trim()) return;
     addMessage("user", input);
     setLoading(true);
-
+    setInput("");
     try {
       const res = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/ai/RAG/chatBotUsingRag?question=${encodeURIComponent(input)}`,
@@ -54,10 +81,12 @@ export default function ChatApp() {
       );
       const answer = await res.text();
       console.log("answer is : ", answer);
-      addMessage("bot", answer);
+      //addMessage("bot", answer);
+      simulateTyping(answer);
     } catch (err) {
       console.error(err);
-      addMessage("bot", "Error fetching response.");
+      //addMessage("bot", "Error fetching response.");
+      simulateTyping("Error fetching response.");
     } finally {
       setInput("");
       setLoading(false);
@@ -69,6 +98,7 @@ export default function ChatApp() {
     if (!input.trim()) return;
     addMessage("user", input);
     setLoading(true);
+    setInput("");
 
     try {
       const res = await fetch(
@@ -78,9 +108,10 @@ export default function ChatApp() {
       console.log("image blob size:", blob.size);
       const url = URL.createObjectURL(blob);
       addMessage("image", url);
+
     } catch (err) {
       console.error(err);
-      addMessage("bot", "Error generating image.");
+      simulateTyping("Error generating image.");
     } finally {
       setInput("");
       setLoading(false);
@@ -95,6 +126,11 @@ export default function ChatApp() {
     const formData = new FormData();
     formData.append("file", file);
 
+    // 👉 Show the uploaded image in chat
+    const fileUrl = URL.createObjectURL(file);
+    addMessage("image", fileUrl);
+    //addMessage("user", fileUrl, "image");
+
     try {
       const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/ai/image/getImageDescription`, {
         method: "POST",
@@ -102,10 +138,11 @@ export default function ChatApp() {
       });
       const description = await res.text();
       console.log("description is : ", description);
-      addMessage("description", description);
+      //addMessage("description", description);
+      simulateTyping(description);
     } catch (err) {
       console.error(err);
-      addMessage("bot", "Error describing image.");
+      simulateTyping("Error describing image.");//addMessage("bot", "Error describing image.");
     } finally {
       setFile(null);
       setLoading(false);
@@ -120,6 +157,7 @@ export default function ChatApp() {
     if (!input.trim()) return;
     addMessage("user", input);
     setLoading(true);
+    setInput("");
 
     try {
       const res = await fetch(
@@ -129,9 +167,10 @@ export default function ChatApp() {
       console.log("audio blob size:", blob.size);
       const url = URL.createObjectURL(blob);
       addMessage("audio", url);
+      //addMessage("bot", fileUrl, "audio");
     } catch (err) {
       console.error(err);
-      addMessage("bot", "Error generating audio.");
+      simulateTyping("Error describing image.");//addMessage("bot", "Error generating audio.");
     } finally {
       setInput("");
       setLoading(false);
@@ -146,6 +185,11 @@ export default function ChatApp() {
     const formData = new FormData();
     formData.append("file", file);
 
+    // 👉 Show the uploaded audio in chat
+    const fileUrl = URL.createObjectURL(file);
+    addMessage("audio", fileUrl);
+    //addMessage("user", fileUrl, "audio");
+
     try {
       const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/ai/speech/getAudioToText`, {
         method: "POST",
@@ -153,10 +197,11 @@ export default function ChatApp() {
       });
       const transcript = await res.text();
       console.log("transcript is : ", transcript);
-      addMessage("bot", transcript);
+      //addMessage("bot", transcript);
+      simulateTyping(transcript);
     } catch (err) {
       console.error(err);
-      addMessage("bot", "Error transcribing audio.");
+      simulateTyping( "Error transcribing audio.");//addMessage("bot", "Error transcribing audio.");
     } finally {
       setFile(null);// reset state
       setLoading(false);
