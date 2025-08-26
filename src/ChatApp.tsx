@@ -324,9 +324,9 @@ export default function ChatApp() {
   };
 
   return (
-      <div className="flex h-screen">
+      <div className="flex flex-col md:flex-row h-screen">
         {/* Left: Chat section */}
-        <div className="w-2/3 p-4 border-r overflow-y-auto">
+        <div className="w-full md:w-2/3 p-4 border-r overflow-y-auto">
           <div className="flex flex-col h-screen max-w-2xl mx-auto p-4">
                 {/* Header with app name and welcome message */}
                 <div className="text-center mb-4">
@@ -509,7 +509,8 @@ export default function ChatApp() {
               </div>
         </div>
 
-        <div className="w-1/3 p-6 bg-gray-50 border-l overflow-y-auto">
+        {/* Right: Own Document Upload Section */}
+        <div className="w-full md:w-1/3 p-6 bg-gray-50 border-l overflow-y-auto">
           <h2 className="text-xl font-bold mb-4">📂 Upload Your Own Documents</h2>
 
           <p className="text-gray-700 text-sm mb-4 leading-relaxed">
