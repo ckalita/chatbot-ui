@@ -324,6 +324,8 @@ export default function ChatApp() {
   };
 
   return (
+      <div className="flex flex-col min-h-screen">
+      {/* Main content : Chat + File load container */}
       <div className="flex flex-col md:flex-row h-screen">
         {/* Left: Chat section */}
         <div className="flex-1 md:w-2/3 p-2 sm:p-3 md:p-4 border-r overflow-y-auto">
@@ -573,6 +575,11 @@ export default function ChatApp() {
                       </div>
                     )}
         </div>
+      </div>
+      {/* Footer (always bottom, not a column) */}
+        <footer className="bg-gray-100 text-gray-600 text-center text-xs sm:text-sm py-2 border-t">
+          © {new Date().getFullYear()} Chandan Kalita. All rights reserved.
+        </footer>
       </div>
     );
 }
