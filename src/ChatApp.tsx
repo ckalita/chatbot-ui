@@ -446,82 +446,85 @@ export default function ChatApp() {
                 placeholder="Type your message..."
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
               />
-              <div className="flex flex-col sm:flex-row gap-2">
+              {/* Toolbar with all 6 buttons + file input */}
+              <div className="flex flex-row flex-nowrap items-center gap-2 mt-3 w-full overflow-x-auto p-2 bg-gray-50 rounded-lg shadow">
+
+                {/* Q&A */}
                 <button
                   onClick={sendMessage}
-                  className="bg-blue-500 text-white px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base w-full sm:w-auto"
+                  className="flex-shrink-0 bg-blue-500 text-white px-3 py-2 text-xs rounded-md hover:bg-blue-600 active:scale-95"
                   disabled={loading}
                 >
                   {loading ? "..." : "Q&A"}
                 </button>
+
+                {/* Generate Image */}
                 <button
                   onClick={generateImage}
-                  className="bg-green-500 text-white px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base w-full sm:w-auto"
+                  className="flex-shrink-0 bg-green-500 text-white px-3 py-2 text-xs rounded-md hover:bg-green-600 active:scale-95"
                   disabled={loading}
                 >
                   {loading ? "..." : "Generate Image"}
                 </button>
+
+                {/* Text → Audio */}
                 <button
                   onClick={textToAudio}
-                  className="bg-purple-500 text-white px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base w-full sm:w-auto"
+                  className="flex-shrink-0 bg-purple-500 text-white px-3 py-2 text-xs rounded-md hover:bg-purple-600 active:scale-95"
                   disabled={loading}
                 >
-                  {loading ? "..." : "Text to Audio"}
+                  {loading ? "..." : "Text → Audio"}
                 </button>
+
+                {/* File input */}
+                <label className="flex-shrink-0 cursor-pointer min-w-[120px]">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                    className="hidden"
+                  />
+                  <div className="bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md px-3 py-2 text-xs text-center truncate">
+                    {file ? file.name : "Choose File"}
+                  </div>
+                </label>
+
+                {/* Image Description */}
+                <button
+                  onClick={getImageDescription}
+                  disabled={!file}
+                  className={`flex-shrink-0 px-3 py-2 text-xs rounded-md font-medium transition ${
+                    file
+                      ? "bg-yellow-500 text-black hover:bg-yellow-600 active:scale-95"
+                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  }`}
+                >
+                  {loading ? "..." : "Image Describe"}
+                </button>
+
+                {/* Audio → Text */}
+                <button
+                  onClick={audioToText}
+                  disabled={!file}
+                  className={`flex-shrink-0 px-3 py-2 text-xs rounded-md font-medium transition ${
+                    file
+                      ? "bg-pink-500 text-white hover:bg-pink-600 active:scale-95"
+                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  }`}
+                >
+                  {loading ? "..." : "Audio → Text"}
+                </button>
+
               </div>
-              {/* image and audio file upload  */}
-              <div className="flex flex-col space-y-2 mt-3">
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                  {/* Custom file input */}
-                  <label className="flex-1 cursor-pointer">
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={(e) => setFile(e.target.files?.[0] || null)}
-                      className="hidden"
-                    />
-                    <div className="bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md px-3 py-2 text-sm text-center truncate">
-                      {file ? file.name : "Choose File"}
-                    </div>
-                  </label>
 
-                  {/* Image Description button */}
-                  <button
-                    onClick={getImageDescription}
-                    disabled={!file}
-                    className={`flex-1 sm:flex-none px-3 py-2 rounded-md text-sm font-medium transition ${
-                      file
-                        ? "bg-yellow-500 text-black hover:bg-yellow-600 active:scale-95"
-                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    }`}
-                  >
-                    {loading ? "..." : "Describe"}
-                  </button>
-
-                  {/* Audio to Text button */}
-                  <button
-                    onClick={audioToText}
-                    disabled={!file}
-                    className={`flex-1 sm:flex-none px-3 py-2 rounded-md text-sm font-medium transition ${
-                      file
-                        ? "bg-pink-500 text-white hover:bg-pink-600 active:scale-95"
-                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    }`}
-                  >
-                    {loading ? "..." : "Audio → Text"}
-                  </button>
-                </div>
 
                 {/* Optional validation message */}
                 {!file && (
                   <p className="text-red-500 text-xs sm:text-sm mt-1">
-                    Please upload a file to enable features.
+                    Please upload a file to enable Image Description and Audio → Text feature.
                   </p>
                 )}
               </div>
-
-
-            </div>
           </div>
         </div>
 
