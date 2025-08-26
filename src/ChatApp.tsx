@@ -379,57 +379,63 @@ export default function ChatApp() {
             </div>
 
             {/* Share Buttons */}
-                            <div className="flex gap-3 mt-4">
-                                <div className="flex items-center justify-between p-2 border-b">
-                                  <button
-                                    onClick={handleCopyChat}
-                                    className="p-2 rounded-full hover:bg-gray-200"
-                                    title="Copy Chat"
-                                  >
-                                    <Copy className="w-5 h-5" />
-                                  </button>
-                                  <button
-                                    onClick={handleShareChat}
-                                    className="p-2 rounded-full hover:bg-gray-200"
-                                    title="Share Chat"
-                                  >
-                                    <Share2 className="w-5 h-5 text-gray-600" />
-                                  </button>
-                                  <div className="relative">
-                                    <button
-                                      onClick={() => setShowDownloadOptions((prev) => !prev)}
-                                      className="p-2 rounded-full hover:bg-gray-200"
-                                      title="Download Chat"
-                                    >
-                                      <Download className="w-5 h-5" />
-                                    </button>
+            <div className="mt-2 sm:mt-3">
+              <div className="flex justify-end gap-2 sm:gap-3">
+                {/* Copy */}
+                <button
+                  onClick={handleCopyChat}
+                  className="p-1.5 sm:p-2 rounded-full hover:bg-gray-200 active:scale-95 transition"
+                  title="Copy Chat"
+                >
+                  <Copy className="w-5 h-5 sm:w-4 sm:h-4 text-gray-600" />
+                </button>
 
-                                    {showDownloadOptions && (
-                                      <div className="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg z-10">
-                                        <button
-                                          onClick={() => {
-                                            handleDownloadTxt();
-                                            setShowDownloadOptions(false);
-                                          }}
-                                          className="flex items-center w-full px-3 py-2 hover:bg-gray-100"
-                                        >
-                                          <FileText className="w-4 h-4 mr-2" /> Text
-                                        </button>
-                                        <button
-                                          onClick={() => {
-                                            handleDownloadPdf();
-                                            setShowDownloadOptions(false);
-                                          }}
-                                          className="flex items-center w-full px-3 py-2 hover:bg-gray-100"
-                                        >
-                                          <FileType className="w-4 h-4 mr-2" /> PDF
-                                        </button>
-                                      </div>
-                                    )}
-                                  </div>
+                {/* Share */}
+                <button
+                  onClick={handleShareChat}
+                  className="p-1.5 sm:p-2 rounded-full hover:bg-gray-200 active:scale-95 transition"
+                  title="Share Chat"
+                >
+                  <Share2 className="w-5 h-5 sm:w-4 sm:h-4 text-gray-600" />
+                </button>
 
-                                </div>
+                {/* Download dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowDownloadOptions((prev) => !prev)}
+                    className="p-1.5 sm:p-2 rounded-full hover:bg-gray-200 active:scale-95 transition"
+                    title="Download Chat"
+                  >
+                    <Download className="w-5 h-5 sm:w-4 sm:h-4 text-gray-600" />
+                  </button>
+
+                  {showDownloadOptions && (
+                    <div className="absolute right-0 mt-2 w-32 bg-white border rounded-md shadow-md z-10">
+                      <button
+                        onClick={() => {
+                          handleDownloadTxt();
+                          setShowDownloadOptions(false);
+                        }}
+                        className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100"
+                      >
+                        <FileText className="w-4 h-4 mr-2" /> Text
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleDownloadPdf();
+                          setShowDownloadOptions(false);
+                        }}
+                        className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100"
+                      >
+                        <FileType className="w-4 h-4 mr-2" /> PDF
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
+
+
 
             {/* Input + buttons */}
             <div className="flex flex-col mt-2 sm:mt-3 space-y-2">
@@ -463,51 +469,57 @@ export default function ChatApp() {
                   {loading ? "..." : "Text to Audio"}
                 </button>
               </div>
+              {/* image and audio file upload  */}
               <div className="flex flex-col space-y-2 mt-3">
-                                  <div className="flex items-center space-x-3">
-                                    {/* Custom file input */}
-                                    <label className="flex-1 cursor-pointer">
-                                      <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        onChange={(e) => setFile(e.target.files?.[0] || null)}
-                                        className="hidden"
-                                      />
-                                      <div className="bg-gray-100 hover:bg-gray-200 text-gray-700 border rounded-lg p-2 text-center">
-                                        {file ? file.name : "Choose File"}
-                                      </div>
-                                    </label>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  {/* Custom file input */}
+                  <label className="flex-1 cursor-pointer">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={(e) => setFile(e.target.files?.[0] || null)}
+                      className="hidden"
+                    />
+                    <div className="bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md px-3 py-2 text-sm text-center truncate">
+                      {file ? file.name : "Choose File"}
+                    </div>
+                  </label>
 
-                                    {/* Image Description button */}
-                                    <button
-                                      onClick={getImageDescription}
-                                      disabled={!file}
-                                      className={`px-4 py-2 rounded-lg ${
-                                        file ? "bg-yellow-500 text-black hover:bg-yellow-600" : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                      }`}
-                                    >
-                                      {loading ? "..." : "Image Description"}
-                                    </button>
+                  {/* Image Description button */}
+                  <button
+                    onClick={getImageDescription}
+                    disabled={!file}
+                    className={`flex-1 sm:flex-none px-3 py-2 rounded-md text-sm font-medium transition ${
+                      file
+                        ? "bg-yellow-500 text-black hover:bg-yellow-600 active:scale-95"
+                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    }`}
+                  >
+                    {loading ? "..." : "Describe"}
+                  </button>
 
-                                    {/* Audio to Text button */}
-                                    <button
-                                      onClick={audioToText}
-                                      disabled={!file}
-                                      className={`px-4 py-2 rounded-lg ${
-                                        file ? "bg-pink-500 text-white hover:bg-pink-600" : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                      }`}
-                                    >
-                                      {loading ? "..." : "Audio to Text"}
-                                    </button>
-                                  </div>
+                  {/* Audio to Text button */}
+                  <button
+                    onClick={audioToText}
+                    disabled={!file}
+                    className={`flex-1 sm:flex-none px-3 py-2 rounded-md text-sm font-medium transition ${
+                      file
+                        ? "bg-pink-500 text-white hover:bg-pink-600 active:scale-95"
+                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    }`}
+                  >
+                    {loading ? "..." : "Audio → Text"}
+                  </button>
+                </div>
 
-                                  {/* Optional validation message */}
-                                  {!file && (
-                                    <p className="text-red-500 text-sm mt-1">
-                                      Please upload a file to enable Image Description / Audio to Text.
-                                    </p>
-                                  )}
-                                </div>
+                {/* Optional validation message */}
+                {!file && (
+                  <p className="text-red-500 text-xs sm:text-sm mt-1">
+                    Please upload a file to enable features.
+                  </p>
+                )}
+              </div>
+
 
             </div>
           </div>
