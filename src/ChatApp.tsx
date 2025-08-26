@@ -326,7 +326,7 @@ export default function ChatApp() {
   return (
       <div className="flex flex-col md:flex-row h-screen">
         {/* Left: Chat section */}
-        <div className="w-full md:w-2/3 p-2 sm:p-3 md:p-4 border-r overflow-y-auto">
+        <div className="flex-1 md:w-2/3 p-2 sm:p-3 md:p-4 border-r overflow-y-auto">
           <div className="flex flex-col h-full max-w-2xl mx-auto">
             {/* Header */}
             <div className="text-center mb-3 sm:mb-4">
@@ -529,7 +529,7 @@ export default function ChatApp() {
         </div>
 
         {/* Right: File upload section */}
-        <div className="w-full md:w-1/3 p-3 sm:p-4 md:p-6 bg-gray-50 border-l overflow-y-auto">
+        <div className="flex-none md:w-1/3 max-h-[35vh] md:max-h-none p-3 sm:p-4 md:p-6 bg-gray-50 border-l overflow-y-auto">
           <h2 className="text-lg sm:text-xl font-bold mb-3">📂 Upload Your Documents</h2>
           <p className="text-xs sm:text-sm md:text-base text-gray-700 mb-3 leading-relaxed">
             <strong>Enhance your AI Assistant by uploading your own files!</strong>
